@@ -1,6 +1,8 @@
 import React, { useCallback, useRef } from 'react'
+import { Link, useHistory } from 'react-router-dom'
+
 import { FiLock, FiMail, FiUser, FiArrowLeft } from 'react-icons/fi'
-import { Container, Content, Background } from './styles'
+import { Container, Content, Background, Transition } from './styles'
 import { Form } from '@unform/web'
 import { FormHandles } from '@unform/core'
 
@@ -10,13 +12,24 @@ import logoImage from '../../assets/logo.svg'
 
 import getValidationErrors from '../../utils/getValidationErrors'
 
+import { useToast } from '../../hooks/toast'
+
 import Button from '../../components/Button'
 import Input from '../../components/Input'
+import { api } from '../../services/api'
+
+interface SignUpFormData {
+  name: string
+  email: string
+  password: string
+}
 
 const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
+  const { addToast } = useToast()
+  const history = useHistory()
 
-  const handleSignUp = useCallback(async (data: object) => {
+  const handleSignUp = useCallback(async (formData: SignUpFormData) => {
     try {
       formRef.current?.setErrors({})
 
@@ -30,11 +43,30 @@ const SignUp: React.FC = () => {
           .min(6, 'No mínimo 6 digitos')
       })
 
-      await schema.validate(data, { abortEarly: false })
+      await schema.validate(formData, { abortEarly: false })
+
+      await api.post('users', formData)
+
+      addToast({
+        type: 'success',
+        title: 'Casdastro Realizado!',
+        description: 'Você já pode fazer login'
+      })
+
+      history.push('/')
     } catch (error) {
-      formRef.current?.setErrors(
-        getValidationErrors(error)
-      )
+      if (error instanceof Yup.ValidationError) {
+        formRef.current?.setErrors(
+          getValidationErrors(error)
+        )
+      } else {
+        console.error(error)
+        addToast({
+          type: 'error',
+          title: 'Erro finalizar cadastro!',
+          description: 'Ocorreu um erro ao fazer seu cadastro, tente novamente.'
+        })
+      }
     }
   }, [])
 
@@ -42,46 +74,49 @@ const SignUp: React.FC = () => {
     <Container>
       <Background/>
 
-      <Content>
-        <img src={logoImage} alt="GoBarber"/>
+      <Transition>
+        <Content>
+          <img src={logoImage} alt="GoBarber"/>
 
-        <Form ref={formRef} className="sign-up-form" onSubmit={handleSignUp}>
-          <h1 className="sign-up-form__title">Faça Seu Cadastro</h1>
+          <Form ref={formRef} className="sign-up-form" onSubmit={handleSignUp}>
+            <h1 className="sign-up-form__title">Faça Seu Cadastro</h1>
 
-          <Input
-            name="name"
-            type="text"
-            icon={FiUser}
-            placeholder="Nome"
-          />
+            <Input
+              name="name"
+              type="text"
+              icon={FiUser}
+              placeholder="Nome"
+            />
 
-          <Input
-            name="email"
-            type="text"
-            icon={FiMail}
-            placeholder="E-mail"
-          />
+            <Input
+              name="email"
+              type="text"
+              icon={FiMail}
+              placeholder="E-mail"
+            />
 
-          <Input
-            name="password"
-            type="password"
-            icon={FiLock}
-            placeholder="Senha"
-          />
+            <Input
+              name="password"
+              type="password"
+              icon={FiLock}
+              placeholder="Senha"
+            />
 
-          <Button type="submit">
+            <Button type="submit">
             Cadastrar
-          </Button>
-        </Form>
+            </Button>
+          </Form>
 
-        <a className="login" href="#voltar">
-          <FiArrowLeft/>
+          <Link className="login" to="/">
+            <FiArrowLeft/>
           Já possui cadastro?
-          <strong style={{ marginLeft: '4px' }}>
+            <strong style={{ marginLeft: '4px' }}>
             Fazer Login
-          </strong>
-        </a>
-      </Content>
+            </strong>
+          </Link>
+        </Content>
+      </Transition>
+
     </Container>
   )
 }

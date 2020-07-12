@@ -1,6 +1,7 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import signInBackgrounImage from '../../assets/sign-up-background.png'
 import { shade } from 'polished'
+import { animated } from 'react-spring'
 
 export const Container = styled.div`
   min-height: 100vh;
@@ -8,11 +9,33 @@ export const Container = styled.div`
   align-items: stretch;
 `
 
-export const Content = styled.div`
-  padding: 1rem;
+export const Transition = styled(animated.div)`
+  width: 100%;
+  max-width: 45rem;
   display: flex;
   flex-direction: column;
   place-content: center;
+
+  animation: ${keyframes`
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  `} 1s;
+`
+
+export const Content = styled.div`
+  padding: 1rem;
+
+  img {
+    display: block;
+    margin: 0 auto;
+  }
 
   width: 100%;
   max-width: 45rem;
