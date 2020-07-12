@@ -8,7 +8,6 @@ interface ContainerProps {
   hasError: boolean
 }
 
-
 interface ErrorProps {
   isFocused?: boolean
 }

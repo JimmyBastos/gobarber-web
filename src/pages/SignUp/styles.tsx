@@ -1,14 +1,15 @@
-import styled from 'styled-components';
+import styled from 'styled-components'
 import signInBackgrounImage from '../../assets/sign-up-background.png'
 import { shade } from 'polished'
 
 export const Container = styled.div`
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: stretch;
 `
 
 export const Content = styled.div`
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   place-content: center;
@@ -16,9 +17,9 @@ export const Content = styled.div`
   width: 100%;
   max-width: 45rem;
 
-  .login-form {
+  .sign-up-form {
     text-align: center;
-    margin: 5rem auto;
+    margin: 4rem auto;
     width: 20rem;
 
     &__title {

@@ -1,14 +1,14 @@
 import React, { useCallback, useRef } from 'react'
-import { FiLock, FiMail, FiUser, FiArrowLeft } from "react-icons/fi";
+import { FiLock, FiMail, FiUser, FiArrowLeft } from 'react-icons/fi'
 import { Container, Content, Background } from './styles'
 import { Form } from '@unform/web'
 import { FormHandles } from '@unform/core'
 
 import * as Yup from 'yup'
 
-import logoImage from '../../assets/logo.svg';
+import logoImage from '../../assets/logo.svg'
 
-import getValidationErrors from '../../utils/getValidationErrors';
+import getValidationErrors from '../../utils/getValidationErrors'
 
 import Button from '../../components/Button'
 import Input from '../../components/Input'
@@ -22,17 +22,16 @@ const SignUp: React.FC = () => {
 
       const schema = Yup.object().shape({
         name: Yup.string()
-                .required('Nome obrigatório'),
+          .required('Nome obrigatório'),
         email: Yup.string()
           .required('Email obrigatório')
           .email('Digite um e-mail válido'),
         password: Yup.string()
-          .min(6, 'No mínimo 6 digitos'),
+          .min(6, 'No mínimo 6 digitos')
       })
 
-      await schema.validate(data, { abortEarly: false})
-
-    } catch(error) {
+      await schema.validate(data, { abortEarly: false })
+    } catch (error) {
       formRef.current?.setErrors(
         getValidationErrors(error)
       )
@@ -46,8 +45,8 @@ const SignUp: React.FC = () => {
       <Content>
         <img src={logoImage} alt="GoBarber"/>
 
-        <Form ref={formRef} className="login-form" onSubmit={handleSignUp}>
-          <h1 className="login-form__title">Faça Seu Cadastro</h1>
+        <Form ref={formRef} className="sign-up-form" onSubmit={handleSignUp}>
+          <h1 className="sign-up-form__title">Faça Seu Cadastro</h1>
 
           <Input
             name="name"

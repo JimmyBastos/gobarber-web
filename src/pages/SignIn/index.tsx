@@ -1,19 +1,23 @@
-import React, { useRef, useCallback } from 'react'
-import { Form } from '@unform/web';
-import { FormHandles } from '@unform/core';
-import { FiLogIn, FiLock, FiMail } from "react-icons/fi";
+import React, { useRef, useCallback, useContext } from 'react'
+import { Form } from '@unform/web'
+import { FormHandles } from '@unform/core'
+import { FiLogIn, FiLock, FiMail } from 'react-icons/fi'
 import { Container, Content, Background } from './styles'
 
 import * as Yup from 'yup'
 
-import logoImage from '../../assets/logo.svg';
+import logoImage from '../../assets/logo.svg'
 
 import Button from '../../components/Button'
 import Input from '../../components/Input'
-import getValidationErrors from '../../utils/getValidationErrors';
+import getValidationErrors from '../../utils/getValidationErrors'
+
+import { AuthContext } from '../../context/AuthContext'
 
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
+
+  const { signIn } = useContext(AuthContext)
 
   const handleLogin = useCallback(async (data: object) => {
     try {
@@ -27,20 +31,20 @@ const SignIn: React.FC = () => {
           .required('Senha obrigatória')
       })
 
-      await schema.validate(data, { abortEarly: false})
+      await schema.validate(data, { abortEarly: false })
 
-    } catch(error) {
+      signIn(data)
+    } catch (error) {
       formRef.current?.setErrors(
         getValidationErrors(error)
       )
     }
-  }, [])
-
+  }, [signIn])
 
   return (
     <Container>
       <Content>
-        <img src={logoImage} alt="GoBarber"/>
+        <img src={logoImage} alt="GoBarber" />
 
         <Form ref={formRef} className="login-form" onSubmit={handleLogin}>
           <h1 className="login-form__title">Faça seu Login</h1>
@@ -74,7 +78,7 @@ const SignIn: React.FC = () => {
         </Form>
 
         <a className="create-account" href="#cadastro">
-          <FiLogIn/>
+          <FiLogIn />
             Criar Uma Conta
         </a>
       </Content>
