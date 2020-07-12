@@ -24,6 +24,13 @@ module.exports = {
     '@typescript-eslint'
   ],
   rules: {
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+
+    // fix false positive on types
+    '@typescript-eslint/no-unused-vars': [2, { args: 'none' }],
+
+    // fix false positive for safe navigation operator
+    'no-unused-expressions': 'off',
+    '@typescript-eslint/no-unused-expressions': 2,
   }
 }
