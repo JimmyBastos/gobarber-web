@@ -144,7 +144,7 @@ const Profile: React.FC = () => {
           />
 
           <label className="avatar-input__upload" htmlFor="avatar">
-            {isUploading ? <Loading/> : <FiCamera/>}
+            {isUploading ? <Loading style={{ marginTop: '4px' }}/> : <FiCamera/>}
 
             <input
               type="file"
