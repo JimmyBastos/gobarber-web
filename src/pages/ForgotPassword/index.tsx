@@ -1,8 +1,8 @@
-import React, { useRef, useCallback } from 'react'
+import React, { useRef, useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Form } from '@unform/web'
 import { FormHandles } from '@unform/core'
-import { FiLogIn, FiLock, FiMail } from 'react-icons/fi'
+import { FiArrowLeft, FiMail } from 'react-icons/fi'
 import { Container, Transition, Content, Background } from './styles'
 
 import * as Yup from 'yup'
@@ -13,35 +13,39 @@ import Button from '../../components/Button'
 import Input from '../../components/Input'
 import getValidationErrors from '../../utils/getValidationErrors'
 
-import { useAuth } from '../../hooks/auth'
 import { useToast } from '../../hooks/toast'
+import { api } from '../../services/api'
 
-interface SignInFormData {
-  email: string,
-  password: string
+interface ForgotPasswordFormData {
+  email: string
 }
 
-const SignIn: React.FC = () => {
+const ForgotPassword: React.FC = () => {
   const formRef = useRef<FormHandles>(null)
-
-  const { signIn } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
   const { addToast } = useToast()
 
-  const handleLogin = useCallback(async (formData: SignInFormData) => {
+  const handleSubmit = useCallback(async (formData: ForgotPasswordFormData) => {
     try {
+      setIsLoading(true)
+
       formRef.current?.setErrors({})
 
       const schema = Yup.object().shape({
         email: Yup.string()
           .required('Email obrigatório')
-          .email('Digite um e-mail válido'),
-        password: Yup.string()
-          .required('Senha obrigatória')
+          .email('Digite um e-mail válido')
       })
 
       await schema.validate(formData, { abortEarly: false })
 
-      await signIn(formData)
+      await api.post('/password/forgot', formData)
+
+      addToast({
+        type: 'success',
+        title: 'Recuperação enviada!',
+        description: 'Siga os passos enviados para o seu e-mail para recuperar sua senha.'
+      })
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         formRef.current?.setErrors(
@@ -51,12 +55,14 @@ const SignIn: React.FC = () => {
         console.error(error)
         addToast({
           type: 'error',
-          title: 'Erro na autenticação!',
-          description: 'Não foi possível fazer login. Verifique seu e-mail e senha.'
+          title: 'Erro ao solicitar recuperação de senha!',
+          description: 'Ocorreu ao tentar realizar a recuperação de senha. Atualize a página e tente novamente.'
         })
       }
+    } finally {
+      setIsLoading(false)
     }
-  }, [signIn, addToast])
+  }, [addToast])
 
   return (
     <Container>
@@ -64,8 +70,8 @@ const SignIn: React.FC = () => {
         <Content>
           <img src={logoImage} alt="GoBarber" />
 
-          <Form ref={formRef} className="login-form" onSubmit={handleLogin}>
-            <h1 className="login-form__title">Faça seu Login</h1>
+          <Form ref={formRef} className="login-form" onSubmit={handleSubmit}>
+            <h1 className="login-form__title">Recuperar Senha</h1>
 
             <Input
               name="email"
@@ -74,30 +80,17 @@ const SignIn: React.FC = () => {
               placeholder="E-mail"
             />
 
-            <Input
-              name="password"
-              type="password"
-              icon={FiLock}
-              placeholder="Senha"
-            />
-
             <Button
+              loading={isLoading}
               type="submit"
             >
-            Entrar
+              Recuperar
             </Button>
-
-            <Link
-              className="login-form__recover-pass"
-              to="/forgot-password"
-            >
-              Esqueci minha senha
-            </Link>
           </Form>
 
-          <Link className="create-account" to="/signup">
-            <FiLogIn />
-            Criar Uma Conta
+          <Link className="create-account" to="/">
+            <FiArrowLeft/>
+            Voltar para o login
           </Link>
         </Content>
       </Transition>
@@ -106,4 +99,4 @@ const SignIn: React.FC = () => {
   )
 }
 
-export default SignIn
+export default ForgotPassword
