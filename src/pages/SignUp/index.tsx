@@ -68,7 +68,7 @@ const SignUp: React.FC = () => {
         })
       }
     }
-  }, [])
+  }, [addToast, history])
 
   return (
     <Container>
@@ -109,7 +109,7 @@ const SignUp: React.FC = () => {
 
           <Link className="login" to="/">
             <FiArrowLeft/>
-          Já possui cadastro?
+             Já possui cadastro?
             <strong style={{ marginLeft: '4px' }}>
             Fazer Login
             </strong>
