@@ -1,5 +1,12 @@
-import React, { createContext, useCallback, useState, useContext } from 'react'
+import React, { createContext, useCallback, useState, useContext, useEffect } from 'react'
 import { api } from '../services/api'
+
+interface User {
+  id: string
+  name: string
+  email: string
+  avatar_url: string
+}
 
 interface SignInCredetials {
   email: string
@@ -8,12 +15,13 @@ interface SignInCredetials {
 
 interface AuthData {
   token: string
-  user: object
+  user: User
 }
 
 interface AuthContextData {
-  user: object,
+  user: User
   signIn(credentials: SignInCredetials): Promise<void>
+  updateUser(user: User): void
   signOut(): void
 }
 
@@ -36,9 +44,16 @@ const AuthProvider: React.FC = ({ children }) => {
     const token = localStorage.getItem('@Gobarber:token')
     const user = localStorage.getItem('@Gobarber:user')
 
-    return (token && user)
-      ? { token, user: JSON.parse(user) }
-      : {} as AuthData
+    if (token && user) {
+      api.defaults.headers.common.Authorization = `Bearer ${token}`
+
+      return {
+        token,
+        user: JSON.parse(user)
+      }
+    }
+
+    return {} as AuthData
   })
 
   const signIn = useCallback(async ({ email, password }) => {
@@ -53,14 +68,32 @@ const AuthProvider: React.FC = ({ children }) => {
     setAuthData(data)
   }, [])
 
+  const updateUser = useCallback((user: User) => {
+    localStorage.setItem('@Gobarber:user', JSON.stringify(user))
+    setAuthData(data => ({ token: data.token, user }))
+  }, [])
+
   const signOut = useCallback(() => {
     localStorage.removeItem('@Gobarber:token')
     localStorage.removeItem('@Gobarber:user')
     setAuthData({} as AuthData)
   }, [])
 
+  useEffect(
+    () => {
+
+    }, [authData.token]
+  )
+
   return (
-    <AuthContext.Provider value={{ user: authData.user, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user: authData.user as User,
+        signIn,
+        signOut,
+        updateUser
+      }}
+    >
       { children }
     </AuthContext.Provider>
   )
