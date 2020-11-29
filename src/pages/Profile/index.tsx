@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useRef } from 'react'
+import React, { ChangeEvent, useCallback, useRef, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
 import { FiArrowLeft, FiCamera, FiLock, FiMail, FiUser } from 'react-icons/fi'
@@ -17,6 +17,7 @@ import Input from '../../components/Input'
 import { api } from '../../services/api'
 import { useAuth } from '../../hooks/auth'
 import Image from '../../components/Image'
+import Loading from '../../components/Loading'
 
 interface ProfileFormData {
   name: string
@@ -27,14 +28,18 @@ interface ProfileFormData {
 }
 
 const Profile: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const formRef = useRef<FormHandles>(null)
   const history = useHistory()
 
   const { addToast } = useToast()
   const { user, updateUser } = useAuth()
 
-  const handleProfile = useCallback(async (formData: ProfileFormData) => {
+  const handleProfileUpdate = useCallback(async (formData: ProfileFormData) => {
     try {
+      setIsLoading(true)
+
       formRef.current?.setErrors({})
 
       const requirePassword = {
@@ -84,12 +89,16 @@ const Profile: React.FC = () => {
           description: 'Recarregue a página e tente novamente.'
         })
       }
+    } finally {
+      setIsLoading(false)
     }
   }, [addToast, history])
 
   const handleAvatarChange = useCallback(async (evt: ChangeEvent<HTMLInputElement>) => {
     try {
       if (evt.target.files) {
+        setIsUploading(true)
+
         const avatar_file = evt.target.files[0]
 
         const data = new FormData()
@@ -105,7 +114,14 @@ const Profile: React.FC = () => {
         })
       }
     } catch (error) {
-
+      console.error(error)
+      addToast({
+        type: 'error',
+        title: 'Erro atualizar foto do perfil!',
+        description: 'Recarregue a página e tente novamente.'
+      })
+    } finally {
+      setIsUploading(false)
     }
   }, [])
 
@@ -128,7 +144,8 @@ const Profile: React.FC = () => {
           />
 
           <label className="avatar-input__upload" htmlFor="avatar">
-            <FiCamera/>
+            {isUploading ? <Loading/> : <FiCamera/>}
+
             <input
               type="file"
               name="avatar"
@@ -142,7 +159,7 @@ const Profile: React.FC = () => {
         <Form
           ref={formRef}
           className="sign-up-form"
-          onSubmit={handleProfile}
+          onSubmit={handleProfileUpdate}
           initialData={{ name: user.name, email: user.email }}
         >
           <h1 className="sign-up-form__title">
@@ -185,7 +202,10 @@ const Profile: React.FC = () => {
             placeholder="Confirmar Nova Senha"
           />
 
-          <Button type="submit">
+          <Button
+            type="submit"
+            loading={isLoading}
+          >
             Confirmar Mudanças
           </Button>
         </Form>
