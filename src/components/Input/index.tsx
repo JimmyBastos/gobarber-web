@@ -14,10 +14,11 @@ import { useField } from '@unform/core'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
+  containerStyle?: object,
   icon?: React.ComponentType<IconBaseProps>
 }
 
-const Input: React.FC<InputProps> = ({ name, icon: Icon, ...props }) => {
+const Input: React.FC<InputProps> = ({ name, icon: Icon, containerStyle = {}, ...props }) => {
   const {
     fieldName,
     defaultValue,
@@ -51,6 +52,7 @@ const Input: React.FC<InputProps> = ({ name, icon: Icon, ...props }) => {
 
   return (
     <Container
+      style={containerStyle}
       hasError={Boolean(error)}
       isFocused={isFocused}
       isFilled={isFilled}
