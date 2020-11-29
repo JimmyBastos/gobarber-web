@@ -26,7 +26,9 @@ module.exports = {
   rules: {
     "react/prop-types": "off",
 
-    // fix false positive on types
+    "camelcase": "off",
+
+    // fix unused false positive on types
     '@typescript-eslint/no-unused-vars': [2, { args: 'none' }],
 
     // fix false positive for safe navigation operator
